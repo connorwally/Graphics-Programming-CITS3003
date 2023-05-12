@@ -133,18 +133,18 @@ glm::mat4 EditorScene::LocalTransformComponent::calc_model_matrix() const
     // Translation
     model_matrix = glm::translate(position) * model_matrix;
 
-    // An answer taken from ChatGPT - I remade it in order to use course content
     // Rotation
-    // glm::quat rotation_quat = glm::quat(euler_rotation);
-    // model_matrix = model_matrix * glm::mat4_cast(rotation_quat);
+    // This way is better because it applies the rotation locally
+    glm::quat rotation_quat = glm::quat(euler_rotation);
+    model_matrix = model_matrix * glm::mat4_cast(rotation_quat);
 
     // Creates a rotational matrix from the euler angles
-    glm::mat4 rotation_mat = glm::rotate(euler_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
-                             glm::rotate(euler_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
-                             glm::rotate(euler_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+    // glm::mat4 rotation_mat = glm::rotate(euler_rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)) *
+    //                          glm::rotate(euler_rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
+    //                          glm::rotate(euler_rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
 
     // Applies the rotational matrix to the model matrix
-    model_matrix = rotation_mat * model_matrix;
+    // model_matrix = rotation_mat * model_matrix;
 
     // Scale
     model_matrix = glm::scale(scale) * model_matrix;
@@ -175,7 +175,19 @@ void EditorScene::LitMaterialComponent::add_material_imgui_edit_section(MasterRe
     bool material_changed = false;
     ImGui::Text("Material");
 
-    // Add UI controls here
+    material_changed |= ImGui::ColorEdit3("Diffuse Tint", &material.diffuse_tint[0]);
+    material_changed |= ImGui::DragFloat("Diffuse Factor", &material.diffuse_tint.a, 0.01f, 0.0f, FLT_MAX);
+    ImGui::Spacing();
+
+    material_changed |= ImGui::ColorEdit3("Specular Tint", &material.specular_tint[0]);
+    material_changed |= ImGui::DragFloat("Specular Factor", &material.specular_tint.a, 0.01f, 0.0f, FLT_MAX);
+    ImGui::Spacing();
+
+    material_changed |= ImGui::ColorEdit3("Ambient Tint", &material.ambient_tint[0]);
+    material_changed |= ImGui::DragFloat("Ambient Factor", &material.ambient_tint.a, 0.01f, 0.0f, FLT_MAX);
+    ImGui::Spacing();
+
+    material_changed |= ImGui::DragFloat("Shininess", &material.shininess, 0.01f, 0.0f, FLT_MAX);
 
     ImGui::Spacing();
     if (material_changed)
